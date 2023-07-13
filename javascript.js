@@ -1,8 +1,9 @@
 // Creates the canvas grid and populates with the specified cells
-function createCanvas(){
+function createCanvas(canvasSize){
+    const canvasWidthHeight = 480;
     const canvas = document.querySelector('.canvas');
 
-    const canvasSize = 16;
+    const cellWidthHeight = canvasWidthHeight / canvasSize;
 
     for (let i = 0; i < canvasSize; i++){
         // Create row in canvas
@@ -11,6 +12,8 @@ function createCanvas(){
         for (let j = 0; j < canvasSize; j++){
             // Create box in canvas
             const cell = document.createElement('div');
+            cell.style.width = `${cellWidthHeight}px`;
+            cell.style.height = `${cellWidthHeight}px`;
             cell.classList.add('canvas-cell');
             row.appendChild(cell);
         }
@@ -95,12 +98,15 @@ function setUserColor(cells, userColor){
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Create the canvas
-    createCanvas();
-    // Get canvas cells
-    const cells = document.querySelectorAll('.canvas-cell');
+// Remove all cells from canvas
+function removeCellsFromCanvas(canvasContainer){
+    while (canvasContainer.firstChild) {
+        canvasContainer.firstChild.remove();
+    }
+}
 
+// Set all event listeners
+function setEventListeners(cells){
     // Initialize buttons
     const userChoiceButton = document.querySelector('#userChoice');
     const blackButton = document.querySelector('#black');
@@ -109,7 +115,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearButton = document.querySelector('#clear');
 
     // Set blackButton as the initially active button
+    userChoiceButton.classList.remove('active');
     blackButton.classList.add('active');
+    colorButton.classList.remove('active');
+    eraseButton.classList.remove('active');
     setBlack(cells);
 
     // User choice button takes the selected color 
@@ -158,6 +167,40 @@ document.addEventListener('DOMContentLoaded', () => {
     clearButton.addEventListener('click', () => {
         clearCanvas(cells);
     });
+}
 
+document.addEventListener('DOMContentLoaded', () => {
+    // Create the canvas
+    const canvasSize = document.querySelector('#canvasSize');
+    const canvasSizeText = document.querySelector('#sizeValue');
+    createCanvas(canvasSize.value);
+    // Get canvas cells
+    const cells = document.querySelectorAll('.canvas-cell');
+
+    // Initialize buttons
+    const userChoiceButton = document.querySelector('#userChoice');
+    const blackButton = document.querySelector('#black');
+    const colorButton = document.querySelector('#colors');
+    const eraseButton = document.querySelector('#erase');
+    const clearButton = document.querySelector('#clear');
+
+    // Set blackButton as the initially active button
+    blackButton.classList.add('active');
+    setBlack(cells);
+    
+    // Set cells event listeners
+    setEventListeners(cells);
+
+    // Change in canvas size
+    const canvasContainer = document.querySelector('.canvas');
+    canvasSize.addEventListener('input', () => {
+        canvasSizeText.innerText = `${canvasSize.value} x ${canvasSize.value}`
+        removeCellsFromCanvas(canvasContainer);
+        createCanvas(canvasSize.value);
+        // Get canvas cells
+        const cells = document.querySelectorAll('.canvas-cell');
+        setEventListeners(cells);
+
+    });
 });
 
